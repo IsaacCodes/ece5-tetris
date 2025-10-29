@@ -1,7 +1,8 @@
-//Game grid info, modified by the active Piece and read by the GameIO
-const uint8_t gameGridHeight = 20; //TODO: Should be 40 for the real game
-const uint8_t gameGridWidth = 10;
-int gameGrid[gameGridHeight][gameGridWidth] = {0};
+//Game grid info
+constexpr uint8_t gameHeight = 20, gameWidth = 10; //TODO: Should be height 40 for the real game
+bool gameGrid[gameHeight][gameWidth] = {0};
+
+/* EOF? */
 
 //Enum for piece types
 enum PieceType {
@@ -11,7 +12,7 @@ enum PieceType {
 };
 
 //Defines the piece designs
-const uint8_t pieceDesign[NUM_PIECES][3][3] = {
+constexpr uint8_t pieceDesign[NUM_PIECES][3][3] = {
   //L
   {
     {1, 0, 0},
@@ -29,7 +30,7 @@ const uint8_t pieceDesign[NUM_PIECES][3][3] = {
 //Piece class to manage active piece movement
 class Piece {
   private:
-    //Piece type + pos
+    //Piece type + pos  
     PieceType type;
     //x, y relative to top left
     uint8_t x, y, height;
@@ -78,14 +79,14 @@ class Piece {
       }
     }
 
-    //Simple gravity, can add collision later
+    //Gravity to make the piece fall (natural or when pressing down)
     void fall() {
       //If at the bottom of the screen, set it to settled
-      if (y + height == gameGridHeight - 1) {
+      if (settled || y + height == gameHeight - 1) {
         settled = true;
         return;
       }
-      //Checks if there is a block below anywhere
+      //If there is a block below anywhere, set to settled
       for (int j = 0; j < 3; j++) {
         if (gameGrid[y + height + 1][x + j] == 1) {
           settled = true;
@@ -99,22 +100,84 @@ class Piece {
       print();
     }
 
+    void moveLeft() {
+      //If at the edge of the screen, don't move
+      if (x - 1 == 0) return;
+      
+      //TODO: Need code for collision check for blocks on the sides
+
+      //Otherwise move
+      erase();
+      x--;
+      print();
+    }
+
+    void moveRight() {
+      //If at the edge of the screen, don't move
+      if (x + 1 == gameWidth - 1) return;
+      
+      //TODO: Need code for collision check for blocks on the sides
+
+      //Otherwise move
+      erase();
+      x++;
+      print();
+    }
+
     //Returns settled state
     bool isSettled() const {
       return settled;
     }
 };
 
+/* EOF */
 
-//GameIO class, mostly temporary atm (will need to be updated with real screen and input functions)
-class GameIO {
+//GameInput class, handles button inputs (will need to update pins but otherwise should be the same)
+class GameInput {
   private:
-    //Temporary screen management code (mmmm thats eating a lot of ram)
-    char buffer[gameGridHeight * (gameGridWidth+1) + 1]; //40 lines * (10 blocks + 1 '\n') + '\0'
+    //Button input pins
+    static constexpr uint8_t leftPin = 12, downPin = 11, rightPin = 10, rotatePin = 9;
 
   public:
-    //GameIO constructor
-    GameIO() {
+    //GameInput constructor, sets pin modes
+    GameInput() {
+      //Sets pinModes
+      pinMode(leftPin, INPUT);
+      pinMode(downPin, INPUT);
+      pinMode(rightPin, INPUT);
+      pinMode(rotatePin, INPUT);
+    }
+
+    bool readInput( Piece &activePiece) {
+      if(digitalRead(leftPin) == HIGH) {
+        activePiece.moveLeft();
+        return true;
+      }
+      if(digitalRead(downPin) == HIGH) {
+        activePiece.fall();
+        return true;
+      }
+      if(digitalRead(rightPin) == HIGH) {
+        activePiece.moveRight();
+        return true;
+      }
+      if(digitalRead(rotatePin) == HIGH) {
+        //TODO: handle rotate input
+      }
+      
+      return false;
+    }
+};
+
+//GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
+class GameOutput {
+  private:
+    //Temporary screen management code (mmmm thats eating a lot of ram)
+    char buffer[gameHeight * (gameWidth+1) + 1]; //40 lines * (10 blocks + 1 '\n') + '\0'
+
+  public:
+    //GameOutput constructor
+    GameOutput() {
       //Nothing atm
     }
 
@@ -122,8 +185,8 @@ class GameIO {
     void updateScreen() {
       //Loop through game screen, keeping track of index
       uint16_t i = 0;
-      for(uint8_t y = 0; y < gameGridHeight; y++) {
-        for(uint8_t x = 0; x < gameGridWidth; x++) {
+      for(uint8_t y = 0; y < gameHeight; y++) {
+        for(uint8_t x = 0; x < gameWidth; x++) {
           buffer[i] = '0' + gameGrid[y][x]; //Convert it to a char and put it on the screen string
           i++;
         }
@@ -134,12 +197,15 @@ class GameIO {
 
       Serial.println(buffer);
     }
+
 };
 
+/* EOF */
 
 //Global vars
 Piece activePiece;
-GameIO gameIO;
+GameInput gameInput;
+GameOutput gameOutput;
 //Runs once on startup
 void setup() {
   //Init Serial
@@ -150,31 +216,42 @@ void setup() {
   randomSeed(analogRead(A0));
   //Init classes
   activePiece = Piece();
-  gameIO = GameIO();
+  gameInput = GameInput();
+  gameOutput = GameOutput();
 }
 
 
-//Used to manage time in the game loop
+//Used to manage time in the game loop (TODO: maybe move these to respective class later, idk)
 //Time in ms between ticks
-const uint16_t tickTime = 200;
+constexpr uint16_t tickTime = 200;
 uint16_t lastTick = 0;
+constexpr uint16_t inputTime = 100;
+uint16_t lastInput = 0;
 
 //Main game loop
 void loop() {
-  //Every tick_time ms, fall + update the screen
-  if (millis() - lastTick >= tickTime) {
-    //Make active game piece fall + update screen
-    activePiece.fall();
-    gameIO.updateScreen();
+  bool screenChanged = false;
 
+  //Get user input (has a cooldown of inputTime)
+  if (millis() - lastInput >= inputTime && gameInput.readInput(activePiece)) {
+    screenChanged = true;
+    lastInput = millis();
+  }
+
+  //Make active game piece fall + update screen (cooldown of tickTime)
+  if (millis() - lastTick >= tickTime) {
+    activePiece.fall();
     lastTick = millis();
   }
 
+  //Check if piece has hit the bottom grid
   if (activePiece.isSettled()) {
     //Create a new piece
     Serial.println("New piece");
     activePiece = Piece();
   }
 
-  //TODO: Need code for when a new block must spawn (after old block is settled)
+  if(screenChanged) gameOutput.updateScreen();
 }
+
+//TODO: Implement scoring, finish piece movement code

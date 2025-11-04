@@ -30,10 +30,9 @@ class Piece {
 public:
   bool settled;
 private:
-  //Piece type + pos
-  PieceType type;
   //x, y relative to top left
   uint8_t x, y;
+  PieceType type;
 
 public:
   //Piece constructor

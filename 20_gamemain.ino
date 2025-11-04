@@ -2,6 +2,7 @@
 Piece activePiece;
 GameInput gameInput;
 GameOutput gameOutput;
+
 //Runs once on startup
 void setup() {
   //Init Serial
@@ -14,10 +15,8 @@ void setup() {
 
 //Used to manage time in the game loop (TODO: maybe move these to respective class later, idk)
 //Time in ms between ticks
-constexpr uint16_t tickTime = 500;
-uint16_t lastTick = 0;
-constexpr uint16_t inputTime = 500;
-uint16_t lastInput = 0;
+constexpr uint16_t tickTime = 500, inputTime = 500;
+uint16_t lastTick = 0, lastInput = 0;
 
 //Main game loop
 void loop() {

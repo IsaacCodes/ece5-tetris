@@ -4,7 +4,7 @@ private:
   //Buzzer output pin
   static constexpr int8_t buzzerPin = 2;
   //Temporary screen management code (mmmm thats eating a lot of ram)
-  char buffer[gameGrid.height * (gameGrid.width + 1) + 1];  //40 lines * (10 blocks + 1 '\n') + '\0'
+  char buffer[gameGrid.height * (gameGrid.width + 1) + 1];  //20 lines * (10 blocks + 1 '\n') + '\0'
 
 public:
   //GameOutput constructor

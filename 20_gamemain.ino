@@ -37,7 +37,7 @@ void loop() {
   }
 
   //Check if piece has hit the bottom grid
-  if (activePiece.isSettled()) {
+  if (activePiece.settled) {
     //Create a new piece
     Serial.println("New piece");
     activePiece.reset();

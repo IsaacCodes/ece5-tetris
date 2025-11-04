@@ -27,12 +27,13 @@ constexpr uint8_t pieceDesign[NUM_PIECES][3][3] = {
 
 //Piece class to manage active piece movement
 class Piece {
+public:
+  bool settled;
 private:
   //Piece type + pos
   PieceType type;
   //x, y relative to top left
   uint8_t x, y;
-  bool settled;
 
 public:
   //Piece constructor
@@ -56,7 +57,7 @@ public:
     for (int8_t i = 0; i < 3; i++) {
       for (int8_t j = 0; j < 3; j++) {
         if (pieceDesign[type][i][j] == 1) {
-          gameGrid[y + i][x + j] = 0;
+          gameGrid.set(y + i, x + j, 0);
         }
       }
     }
@@ -67,7 +68,7 @@ public:
     for (int8_t i = 0; i < 3; i++) {
       for (int8_t j = 0; j < 3; j++) {
         if (pieceDesign[type][i][j] == 1) {
-          gameGrid[y + i][x + j] = 1;
+          gameGrid.set(y + i, x + j, 1);
         }
       }
     }
@@ -79,7 +80,7 @@ public:
       for (int8_t j = 0; j < 3; j++) {
         //If position is out of range or occupied, return true
         int8_t ny = y + i + dy, nx = x + j + dx;
-        if (pieceDesign[type][i][j] == 1 && (ny >= gameHeight || nx < 0 || nx >= gameWidth || gameGrid[ny][nx] == 1)) return true;
+        if (pieceDesign[type][i][j] == 1 && (ny >= gameGrid.height || nx < 0 || nx >= gameGrid.width || gameGrid.get(ny, nx))) return true;
       }
     }
     //Otherwise return false
@@ -114,10 +115,5 @@ public:
     if (!willCollide(0, 1)) x++;
     //Then reprint
     print();
-  }
-
-  //Returns settled state
-  bool isSettled() const {
-    return settled;
   }
 };

@@ -29,7 +29,7 @@ public:
     return false;
 
     if (digitalRead(downPin) == HIGH) {
-      activePiece.fall(); //TODO: Check if this works
+      activePiece.fall();  //TODO: Check if this works
       return true;
     }
     if (digitalRead(rotatePin) == HIGH) {

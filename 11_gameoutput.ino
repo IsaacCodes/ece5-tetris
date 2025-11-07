@@ -7,8 +7,8 @@ private:
   char buffer[gameGrid.height * (gameGrid.width + 1) + 1];  //20 lines * (10 blocks + 1 '\n') + '\0'
 
 public:
-  //GameOutput constructor
-  GameOutput() {
+  //GameOutputSerial constructor
+  GameOutputSerial() {
     //Init buzzer
     pinMode(buzzerPin, OUTPUT);
   }

@@ -1,8 +1,4 @@
 //GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
-
-#include <LCDWIKI_GUI.h>
-#include <LCDWIKI_SPI.h>
-
 class GameOutputSerial {
 private:
   //Buzzer output pin

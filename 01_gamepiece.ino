@@ -41,7 +41,8 @@ public:
     reset();
   }
 
-  void reset() {
+  //Returns whether it can reset (!willCollide)
+  bool reset() {
     //Always start at top center
     x = 3;
     y = 0;
@@ -49,6 +50,8 @@ public:
     settled = false;
     //Sets a random piece type
     type = static_cast<PieceType>(random(NUM_PIECES));
+
+    return !willCollide(0, 0);
   }
 
   //Empties the section of the gameGrid a piece occupies

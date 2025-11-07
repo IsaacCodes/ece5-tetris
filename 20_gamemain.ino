@@ -1,7 +1,7 @@
 //Global vars
 Piece activePiece;
 GameInput gameInput;
-GameOutput gameOutput;
+GameOutputSerial gameOutput;
 
 //Runs once on startup
 void setup() {
@@ -17,9 +17,15 @@ void setup() {
 //Time in ms between ticks
 constexpr uint16_t tickTime = 500, inputTime = 500;
 uint16_t lastTick = 0, lastInput = 0;
+bool gameOver = false;
 
 //Main game loop
 void loop() {
+  if(gameOver) {
+    gameOutput.gameOver();
+    return;
+  }
+
   bool screenChanged = false;
 
   //Get user input (has a cooldown of inputTime)
@@ -39,7 +45,10 @@ void loop() {
   if (activePiece.settled) {
     //Create a new piece
     Serial.println("New piece");
-    activePiece.reset();
+    if (!activePiece.reset()) {
+      gameOver = true;
+      return;
+    }
     gameOutput.buzz();
   }
 

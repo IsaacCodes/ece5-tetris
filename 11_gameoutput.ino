@@ -1,5 +1,5 @@
 //GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
-class GameOutput {
+class GameOutputSerial {
 private:
   //Buzzer output pin
   static constexpr int8_t buzzerPin = 2;
@@ -32,6 +32,12 @@ public:
     buffer[i] = '\0';
 
     Serial.println(buffer);
+  }
+
+  //Screen to play when game is over
+  void gameOver() {
+    Serial.println("Game Over D:");
+    delay(5000);
   }
 
   //Make a buzz noise

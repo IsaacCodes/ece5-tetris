@@ -25,7 +25,7 @@ public:
       Serial.println("right");
       return true;
     }
-
+    //TODO: remove this when below is implemented
     return false;
 
     if (digitalRead(downPin) == HIGH) {

@@ -49,7 +49,10 @@ void loop() {
       gameOver = true;
       return;
     }
-    gameOutput.buzz();
+    if(gameGrid.lineClear()) {
+      Serial.println("CLEAR");
+      gameOutput.buzz();
+    }
   }
 
   if (screenChanged) gameOutput.updateScreen();

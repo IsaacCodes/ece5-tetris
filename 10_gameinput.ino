@@ -2,7 +2,7 @@
 class GameInput {
 private:
   //Button input pins
-  static constexpr uint8_t leftPin = 4, rightPin = 3, downPin = 11, rotatePin = 9;
+  static constexpr int8_t leftPin = 3, rightPin = 4, downPin = 5, rotatePin = 6;
 
 public:
   //GameInput constructor, sets pin modes
@@ -25,15 +25,18 @@ public:
       Serial.println("right");
       return true;
     }
-    //TODO: remove this when below is implemented
-    return false;
 
+    //TODO: Check if down button works
     if (digitalRead(downPin) == HIGH) {
-      activePiece.fall();  //TODO: Check if this works
+      activePiece.fall();
+      Serial.println("down");
       return true;
     }
+    //TODO: Check if rotate button works
     if (digitalRead(rotatePin) == HIGH) {
-      //TODO: handle rotate input
+      activePiece.rotate();
+      Serial.println("rotate");
+      return true;
     }
 
     return false;

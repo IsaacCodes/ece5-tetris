@@ -1,28 +1,68 @@
 //Enum for piece types
 enum PieceType {
   L,
+  J,
   T,
   O,
+  S,
+  Z,
+  I,
   NUM_PIECES
 };
 
 //Defines the piece designs
-constexpr uint8_t pieceDesign[NUM_PIECES][3][3] = {
+constexpr uint8_t pieceDesignWidth = 3;
+constexpr uint8_t pieceDesignHeight = 4;
+constexpr uint8_t pieceDesign[NUM_PIECES][pieceDesignHeight][pieceDesignWidth] = {
   //L
   {
     { 1, 0, 0 },
-    { 1, 1, 1 },
-    { 0, 0, 0 } },
-  //T
+    { 1, 0, 0 },
+    { 1, 1, 0 },
+    { 0, 0, 0 }
+  },
+  //J
   {
     { 0, 1, 0 },
+    { 0, 1, 0 },
+    { 1, 1, 0 },
+    { 0, 0, 0 }
+  },
+  //T
+  {
     { 1, 1, 1 },
-    { 0, 0, 0 } },
+    { 0, 1, 0 },
+    { 0, 0, 0 },
+    { 0, 0, 0 }
+  },
   //O
   {
     { 1, 1, 0 },
     { 1, 1, 0 },
-    { 0, 0, 0 } }
+    { 0, 0, 0 },
+    { 0, 0, 0 }
+  },
+  //S
+  {
+    { 0, 1, 1 },
+    { 1, 1, 0 },
+    { 0, 0, 0 },
+    { 0, 0, 0 }
+  },
+  //Z
+  {
+    { 1, 1, 0 },
+    { 0, 1, 1 },
+    { 0, 0, 0 },
+    { 0, 0, 0 }
+  },
+  //I
+  {
+    { 1, 1, 0 },
+    { 0, 1, 1 },
+    { 0, 0, 0 },
+    { 0, 0, 0 }
+  },
 };
 
 //Piece class to manage active piece movement
@@ -56,8 +96,8 @@ public:
 
   //Empties the section of the gameGrid a piece occupies
   void erase() const {
-    for (int8_t i = 0; i < 3; i++) {
-      for (int8_t j = 0; j < 3; j++) {
+    for (int8_t i = 0; i < pieceDesignHeight; i++) {
+      for (int8_t j = 0; j < pieceDesignWidth; j++) {
         if (pieceDesign[type][i][j] == 1) {
           gameGrid.set(y + i, x + j, 0);
         }
@@ -67,8 +107,8 @@ public:
 
   //Print to the gameGrid, which is then handled by gameIO
   void print() const {
-    for (int8_t i = 0; i < 3; i++) {
-      for (int8_t j = 0; j < 3; j++) {
+    for (int8_t i = 0; i < pieceDesignHeight; i++) {
+      for (int8_t j = 0; j < pieceDesignWidth; j++) {
         if (pieceDesign[type][i][j] == 1) {
           gameGrid.set(y + i, x + j, 1);
         }
@@ -78,8 +118,8 @@ public:
 
   bool willCollide(int8_t dy, int8_t dx) {
     //Loops thru each position of the block
-    for (int8_t i = 0; i < 3; i++) {
-      for (int8_t j = 0; j < 3; j++) {
+    for (int8_t i = 0; i < pieceDesignHeight; i++) {
+      for (int8_t j = 0; j < pieceDesignWidth; j++) {
         //If position is out of range or occupied, return true
         int8_t ny = y + i + dy, nx = x + j + dx;
         if (pieceDesign[type][i][j] == 1 && (ny >= gameGrid.height || nx < 0 || nx >= gameGrid.width || gameGrid.get(ny, nx))) return true;
@@ -117,5 +157,9 @@ public:
     if (!willCollide(0, 1)) x++;
     //Then reprint
     print();
+  }
+
+  void rotate() {
+    //TODO: Implement rotation
   }
 };

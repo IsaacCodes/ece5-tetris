@@ -2,7 +2,7 @@
 class GameInput {
 private:
   //Button input pins
-  static constexpr uint8_t leftPin = 4, rightPin = 3, downPin = 11, rotatePin = 9;
+  static constexpr int8_t leftPin = 4, rightPin = 3, downPin = -1, rotatePin = -1;
 
 public:
   //GameInput constructor, sets pin modes

@@ -1,7 +1,7 @@
 //Global vars
 Piece activePiece;
 GameInput gameInput;
-GameOutputSerial gameOutput;
+GameOutput gameOutput;
 
 //Runs once on startup
 void setup() {
@@ -10,12 +10,13 @@ void setup() {
   Serial.println("\n--------------------\n");
   //Init random
   randomSeed(analogRead(A0));
+  gameOutput.init();
 }
 
 
 //Used to manage time in the game loop (TODO: maybe move these to respective class later, idk)
 //Time in ms between ticks
-constexpr uint16_t tickTime = 500, inputTime = 500;
+constexpr uint16_t tickTime = 500, inputTime = 150;
 uint16_t lastTick = 0, lastInput = 0;
 bool gameOver = false;
 
@@ -35,10 +36,14 @@ void loop() {
   }
 
   //Make active game piece fall + update screen (cooldown of tickTime)
-  if (millis() - lastTick >= tickTime) {
-    screenChanged = true;
-    activePiece.fall();
-    lastTick = millis();
+  unsigned long now = millis();
+  unsigned long dtTick = now - lastTick;
+
+  while (dtTick >= tickTime) {
+      screenChanged = true;
+      activePiece.fall();
+      lastTick += tickTime;
+      dtTick -= tickTime;
   }
 
   //Check if piece has hit the bottom grid

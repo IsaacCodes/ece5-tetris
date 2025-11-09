@@ -1,7 +1,7 @@
 //GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
 
-#include <LCDWIKI_SPI.h>
-#include <LCDWIKI_GUI.h>
+#include "LCDWIKI_SPI.h"
+#include "LCDWIKI_GUI.h"
 
 #define MODEL ST7796S
 #define CS 10    

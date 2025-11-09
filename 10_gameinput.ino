@@ -25,15 +25,18 @@ public:
       Serial.println("right");
       return true;
     }
-    //TODO: remove this when below is implemented
-    return false;
 
+    //TODO: Check if down button works
     if (digitalRead(downPin) == HIGH) {
-      activePiece.fall();  //TODO: Check if this works
+      activePiece.fall();
+      Serial.println("down");
       return true;
     }
+    //TODO: Check if rotate button works
     if (digitalRead(rotatePin) == HIGH) {
-      //TODO: handle rotate input
+      activePiece.rotate();
+      Serial.println("rotate");
+      return true;
     }
 
     return false;

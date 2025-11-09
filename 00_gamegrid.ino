@@ -39,6 +39,31 @@ public:
     //Clear bit /w and not
     else bitGrid[i >> 3] &= ~bitmask;
   }
+
+  //Clears the line and moves down pieces. Returns true if clear occured
+  bool lineClear() {
+    int8_t line;
+    for (line = height-1; line >= height-4; line--) {
+      for (int8_t j = 0; j < width; j++) {
+        if (!get(line, j)) {
+          goto breakLoops;
+        } 
+      }
+    }
+
+    breakLoops:
+    int8_t clearLen = height-1 - line;
+    if (clearLen == 0) return false;
+
+    //Shift each bit down to the new row
+    for (int8_t i = line; i >= 0; i--) {
+      for (int8_t j = 0; j < width; j++) {
+        set(i, j, get(i+clearLen, j));
+      }
+    }
+
+    return true;
+  }
 };
 
 //Create an instance of the class. Doing that here atm to be used globally

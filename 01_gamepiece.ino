@@ -10,60 +10,209 @@ enum PieceType : uint8_t {
   NUM_PIECES
 };
 
+enum PieceRotation : uint8_t {
+  ROT_0,
+  ROT_90,
+  ROT_180,
+  ROT_270,
+  NUM_ROTATIONS
+};
+
 //Defines the piece designs
-constexpr uint8_t pieceDesignWidth = 3;
+constexpr uint8_t pieceDesignWidth = 4;
 constexpr uint8_t pieceDesignHeight = 4;
-constexpr bool pieceDesign[NUM_PIECES][pieceDesignHeight][pieceDesignWidth] = {
+constexpr uint8_t pieceDesign[NUM_PIECES][NUM_ROTATIONS][pieceDesignHeight][pieceDesignWidth] PROGMEM = {
   //L
   {
-    { 1, 0, 0 },
-    { 1, 0, 0 },
-    { 1, 1, 0 },
-    { 0, 0, 0 }
+    {
+      { 1, 0, 0, 0 },
+      { 1, 0, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 1, 0 },
+      { 1, 0, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 0, 1, 0 },
+      { 1, 1, 1, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //J
   {
-    { 0, 1, 0 },
-    { 0, 1, 0 },
-    { 1, 1, 0 },
-    { 0, 0, 0 }
+    {
+      { 0, 0, 1, 0 },
+      { 0, 0, 1, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 0, 0, 0 },
+      { 1, 1, 1, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 0, 0 },
+      { 1, 0, 0, 0 },
+      { 1, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 1, 0 },
+      { 0, 0, 1, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //T
   {
-    { 1, 1, 1 },
-    { 0, 1, 0 },
-    { 0, 0, 0 },
-    { 0, 0, 0 }
+    {
+      { 0, 1, 0, 0 },
+      { 1, 1, 1, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 0, 0, 0 },
+      { 1, 1, 1, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //O
   {
-    { 1, 1, 0 },
-    { 1, 1, 0 },
-    { 0, 0, 0 },
-    { 0, 0, 0 }
+    {
+      { 1, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //S
   {
-    { 0, 1, 1 },
-    { 1, 1, 0 },
-    { 0, 0, 0 },
-    { 0, 0, 0 }
+    {
+      { 0, 1, 1, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 0, 1, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 0, 0, 0 },
+      { 0, 1, 1, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 1, 0, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //Z
   {
-    { 1, 1, 0 },
-    { 0, 1, 1 },
-    { 0, 0, 0 },
-    { 0, 0, 0 }
+    {
+      { 1, 1, 0, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 0, 1, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 0, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 0, 1, 1, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 1, 1, 0, 0 },
+      { 1, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    }
   },
   //I
   {
-    { 1, 0, 0 },
-    { 1, 0, 0 },
-    { 1, 0, 0 },
-    { 1, 0, 0 }
-  },
+    {
+      { 0, 0, 0, 0 },
+      { 1, 1, 1, 1 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 }
+    },
+    {
+      { 0, 0, 0, 0 },
+      { 1, 1, 1, 1 },
+      { 0, 0, 0, 0 },
+      { 0, 0, 0, 0 }
+    },
+    {
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 },
+      { 0, 1, 0, 0 }
+    }
+  }
 };
+
 
 //Piece class to manage active piece movement
 class Piece {
@@ -72,6 +221,7 @@ public:
 private:
   //x, y relative to top left
   uint8_t x, y;
+  PieceRotation rotation;
   PieceType type;
 
 public:
@@ -88,8 +238,9 @@ public:
     y = 0;
     //Whether the piece should stop falling
     settled = false;
-    //Sets a random piece type
+    //Sets a random piece type + rotation
     type = static_cast<PieceType>(random(NUM_PIECES));
+    rotation = static_cast<PieceRotation>(random(NUM_ROTATIONS));
 
     return !willCollide(0, 0);
   }
@@ -98,7 +249,7 @@ public:
   void erase() const {
     for (int8_t i = 0; i < pieceDesignHeight; i++) {
       for (int8_t j = 0; j < pieceDesignWidth; j++) {
-        if (pieceDesign[type][i][j] == 1) {
+        if (pgm_read_byte(&pieceDesign[type][rotation][i][j])) {
           gameGrid.set(y + i, x + j, 0);
         }
       }
@@ -109,20 +260,21 @@ public:
   void print() const {
     for (int8_t i = 0; i < pieceDesignHeight; i++) {
       for (int8_t j = 0; j < pieceDesignWidth; j++) {
-        if (pieceDesign[type][i][j] == 1) {
+        if (pgm_read_byte(&pieceDesign[type][rotation][i][j])) {
           gameGrid.set(y + i, x + j, 1);
         }
       }
     }
   }
 
+  //TODO: Maybe clean this up a little later
   bool willCollide(int8_t dy, int8_t dx) {
     //Loops thru each position of the block
     for (int8_t i = 0; i < pieceDesignHeight; i++) {
       for (int8_t j = 0; j < pieceDesignWidth; j++) {
         //If position is out of range or occupied, return true
         int8_t ny = y + i + dy, nx = x + j + dx;
-        if (pieceDesign[type][i][j] == 1 && (ny >= gameGrid.height || nx < 0 || nx >= gameGrid.width || gameGrid.get(ny, nx))) return true;
+        if (pgm_read_byte(&pieceDesign[type][rotation][i][j]) && (ny >= gameGrid.height || nx < 0 || nx >= gameGrid.width || gameGrid.get(ny, nx))) return true;
       }
     }
     //Otherwise return false
@@ -160,6 +312,14 @@ public:
   }
 
   void rotate() {
-    //TODO: Implement rotation
+    //Erase the current position
+    erase();
+    //Try rotation
+    rotation = static_cast<PieceRotation>((rotation + 1) % NUM_ROTATIONS);
+    //Rotate back if spot is full
+    if (willCollide(0, 0))
+      rotation = static_cast<PieceRotation>((rotation + NUM_ROTATIONS - 1) % NUM_ROTATIONS);
+    //Then reprint
+    print();
   }
 };

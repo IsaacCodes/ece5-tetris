@@ -28,37 +28,38 @@ LCDWIKI_SPI mylcd(ST7796S, 10,  9,   12,   11,   8,  13,  -1);
 class GameOutput {
 private:
   static constexpr uint8_t displayRotation = ROTATION_180;
-  int16_t displayW, displayH, effW, effH;
+  
+  int16_t displayWidth, displayHeight, effectiveWidth, effectiveHeight;
   int16_t cellSize;
-  int16_t playW, playH, playX, playY;
+  int16_t playWidth, playHeight, playX, playY;
 
   GameGrid prevGrid;
   bool prevValid = false;
 
-  void mapCell(int16_t gx, int16_t gy, int16_t playX, int16_t playY, int16_t cellSize, int16_t &outX, int16_t &outY) {
+  void mapCell(int16_t x, int16_t y, int16_t playX, int16_t playY, int16_t cellSize, int16_t &screenX, int16_t &screenY) {
     switch(displayRotation) {
       case ROTATION_0:
-        outX = playX + gx * cellSize;
-        outY = playY + gy * cellSize;
+        screenX = playX + x * cellSize;
+        screenY = playY + y * cellSize;
         break;
       case ROTATION_90:
-        outX = playX + gy * cellSize;
-        outY = playY + (gameGrid.width - 1 - gx) * cellSize;
+        screenX = playX + y * cellSize;
+        screenY = playY + (gameGrid.width - 1 - x) * cellSize;
         break;
       case ROTATION_180:
-        outX = playX + (gameGrid.width - 1 - gx) * cellSize;
-        outY = playY + (gameGrid.height - 1 - gy) * cellSize;
+        screenX = playX + (gameGrid.width - 1 - x) * cellSize;
+        screenY = playY + (gameGrid.height - 1 - y) * cellSize;
         break;
       case ROTATION_270:
-        outX = playX + (gameGrid.height - 1 - gy) * cellSize;
-        outY = playY + gx * cellSize;
+        screenX = playX + (gameGrid.height - 1 - y) * cellSize;
+        screenY = playY + x * cellSize;
         break;
     }
   }
 
   void drawPlayfieldBackground() {
     mylcd.Set_Draw_color(BLUE);
-    mylcd.Fill_Rectangle(playX, playY, playX + playW - 1, playY + playH - 1);
+    mylcd.Fill_Rectangle(playX, playY, playX + playWidth - 1, playY + playHeight - 1);
   }
 
 public:
@@ -69,26 +70,27 @@ public:
   void init() {
     Serial.println("Initializing GameOutput");
     mylcd.Init_LCD();
+
     //Moved math here to init since it doesn't change
-    displayW = mylcd.Get_Display_Width();
-    displayH = mylcd.Get_Display_Height();
+    displayWidth = mylcd.Get_Display_Width();
+    displayHeight = mylcd.Get_Display_Height();
 
     if (displayRotation == ROTATION_0 || displayRotation == ROTATION_180)
-      effW = gameGrid.width, effH = gameGrid.height;
+      effectiveWidth = gameGrid.width, effectiveHeight = gameGrid.height;
     else
-      effW = gameGrid.height, effH = gameGrid.width;
+      effectiveWidth = gameGrid.height, effectiveHeight = gameGrid.width;
 
-    cellSize = min(displayW / effW, displayH / effH);
+    cellSize = min(displayWidth / effectiveWidth, displayHeight / effectiveHeight);
 
-    playW = cellSize * effW;
-    playH = cellSize * effH;
+    playWidth = cellSize * effectiveWidth;
+    playHeight = cellSize * effectiveHeight;
 
-    playX = (displayW - playW) / 2;
-    playY = (displayH - playH) / 2;
+    playX = (displayWidth - playWidth) / 2;
+    playY = (displayHeight - playHeight) / 2;
 
     delay(200);
     mylcd.Fill_Screen(BLACK);
-    drawPlayfieldBackground();
+    // drawPlayfieldBackground();
     prevValid = false;
   }
 
@@ -98,12 +100,12 @@ public:
         bool filled = gameGrid.get(y, x);
 
         if (!prevValid || prevGrid.get(y, x) != filled) {
-          int16_t sx, sy;
+          int16_t screenX, screenY;
 
-          mapCell(x, y, playX, playY, cellSize, sx, sy);
+          mapCell(x, y, playX, playY, cellSize, screenX, screenY);
 
           mylcd.Set_Draw_color(filled ? WHITE : BLUE);
-          mylcd.Fill_Rectangle(sx, sy, sx + cellSize - 1, sy + cellSize - 1);
+          mylcd.Fill_Rectangle(screenX, screenY, screenX + cellSize - 1, screenY + cellSize - 1);
 
           prevGrid.set(y, x, filled);
         }

@@ -294,6 +294,7 @@ public:
   }
 
   void moveLeft() {
+    Serial.println("left");
     //Erase the current position
     erase();
     //If spot is open, go left
@@ -303,6 +304,7 @@ public:
   }
 
   void moveRight() {
+    Serial.println("right");
     //Erase the current position
     erase();
     //If spot is open, go left
@@ -311,7 +313,15 @@ public:
     print();
   }
 
+  //TODO: Maybe change? Just basically a fall wrapper atm
+  void moveDown() {
+    Serial.println("down");
+    gameGrid.score++;
+    fall();
+  }
+
   void rotate() {
+    Serial.println("rotate");
     //Erase the current position
     erase();
     //Try rotation

@@ -14,28 +14,25 @@ public:
     pinMode(rotatePin, INPUT);
   }
 
+  //Reads button inputs and calls peice movements
   bool readInput(Piece &activePiece) {
     if (digitalRead(leftPin) == HIGH) {
       activePiece.moveLeft();
-      Serial.println("left");
       return true;
     }
+
     if (digitalRead(rightPin) == HIGH) {
       activePiece.moveRight();
-      Serial.println("right");
       return true;
     }
 
     if (digitalRead(rotatePin) == HIGH) {
       activePiece.rotate();
-      Serial.println("rotate");
       return true;
     }
 
-    //TODO: Change this to be a proper implementation?
     if (digitalRead(downPin) == HIGH) {
-      activePiece.fall();
-      Serial.println("down");
+      activePiece.moveDown();
       return true;
     }
 

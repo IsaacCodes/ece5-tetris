@@ -2,6 +2,7 @@
 class GameGrid {
 public:
   static constexpr uint8_t height = 20, width = 10;
+  uint32_t score = 0;
 private:
   uint8_t bitGrid[(height * width + 7) / 8] = {0};
 
@@ -42,7 +43,7 @@ public:
 
   //Clears the line and moves down pieces. Returns true if clear occured
   bool lineClear() {
-    bool cleared = false;
+    uint8_t linesCleared = 0;
 
     //Loops thru bottom up
     for (int8_t line = height - 1; line >= 0; line--) {
@@ -56,7 +57,7 @@ public:
       }
 
       if (full) {
-        cleared = true;
+        linesCleared++;
         //Shift all rows above down
         for (int8_t i = line; i > 0; i--) {
           for (int8_t j = 0; j < width; j++) {
@@ -72,11 +73,22 @@ public:
       }
     }
 
-    return cleared;
+    if (linesCleared >= 1) {
+      score += 100 * (1 << (linesCleared - 1));
+
+      Serial.print("Cleared ");
+      Serial.print(linesCleared);
+      Serial.println(" lines.");
+      Serial.print("Score: ");
+      Serial.println(score);
+
+      return true;
+    }
+
+    return false;
   }
 };
 
 //Create an instance of the class. Doing that here atm to be used globally
 //TODO: Change other classes to use a pointer to gameGrid?
-//TODO: Points
 GameGrid gameGrid;

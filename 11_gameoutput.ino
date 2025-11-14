@@ -63,6 +63,8 @@ private:
   }
 
 public:
+  bool screenInitialized = false;
+
   GameOutput() {
     //nothing atm
   }
@@ -113,6 +115,7 @@ public:
     }
 
     prevValid = true;
+    screenInitialized = true;
   }
 
   void gameOver() {

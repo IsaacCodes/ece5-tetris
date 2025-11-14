@@ -6,8 +6,11 @@ GameOutput gameOutput;
 //TODO: Fix main timings to be a little less janky
 //Used to manage time in the game loop (TODO: maybe move these to respective class later, idk)
 //Time in ms between ticks
-constexpr uint16_t tickTime = 500, inputTime = 500;
-uint16_t lastTick, lastInput;
+constexpr uint16_t fallTime = 500;
+constexpr uint16_t inputTime = 150;
+constexpr uint16_t frameRate = 20;
+
+uint16_t lastFall, lastInput, lastFrame;
 bool gameOver = false;
 
 //Runs once on startup
@@ -19,7 +22,7 @@ void setup() {
   randomSeed(analogRead(A0));
   gameOutput.init();
   
-  lastTick = millis();
+  lastFall = millis();
   lastInput = millis();
 }
 
@@ -29,24 +32,25 @@ void loop() {
     gameOutput.gameOver();
     return;
   }
-
-  bool screenChanged = false;
-
   //Get user input (has a cooldown of inputTime)
-  if ((millis() - lastInput >= inputTime) && gameInput.readInput(activePiece)) {
-    screenChanged = true;
-    lastInput = millis();
+  //Make active game piece fall + update screen (cooldown of tickTime)
+
+  uint32_t now = millis();
+
+  if (now - lastFrame >= (1000 / frameRate)) {
+    lastFrame = now;
+    gameOutput.updateScreen();
   }
 
-  //Make active game piece fall + update screen (cooldown of tickTime)
-  uint32_t now = millis();
-  uint32_t dtTick = now - lastTick;
-
-  while (dtTick >= tickTime) {
-    screenChanged = true;
+  if (now - lastFall >= fallTime) {
     activePiece.fall();
-    lastTick += tickTime;
-    dtTick -= tickTime;
+    lastFall = now;
+  }
+
+  if (now - lastInput >= inputTime) {
+    if (gameInput.readInput(activePiece)) {
+      lastInput = now;
+    }
   }
 
   //Check if piece has hit the bottom grid
@@ -62,6 +66,4 @@ void loop() {
       gameOutput.buzz();
     }
   }
-
-  if (screenChanged) gameOutput.updateScreen();
 }

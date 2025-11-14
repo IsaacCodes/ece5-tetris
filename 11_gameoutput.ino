@@ -1,38 +1,41 @@
-//GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
+//Libraries must be installed to your Arduino environement from:
+//https://www.lcdwiki.com/4.0inch_SPI_Module_ST7796
+#include <LCDWIKI_SPI.h>
+#include <LCDWIKI_GUI.h>
 
-#include "LCDWIKI_SPI.h"
-#include "LCDWIKI_GUI.h"
+enum Color : uint16_t {
+  BLACK   = 0x0000,
+  BLUE    = 0x001F,
+  RED     = 0xF800,
+  GREEN   = 0x07E0,
+  CYAN    = 0x07FF,
+  MAGENTA = 0xF81F,
+  YELLOW  = 0xFFE0,
+  WHITE   = 0xFFFF
+};
 
-#define MODEL ST7796S
-#define CS 10    
-#define CD 9
-#define RST 8
-#define MOSI 11
-#define MISO 12
-#define SCK 13
-#define LED -1 // we set this to -1, because the LED is always on.
+enum Rotation : uint8_t {
+  ROTATION_0,
+  ROTATION_90,
+  ROTATION_180,
+  ROTATION_270
+};
 
-#define BLACK 0x0000
-#define BLUE 0x001F
-#define RED 0xF800
-#define GREEN 0x07E0
-#define CYAN 0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW 0xFFE0
-#define WHITE 0xFFFF
+//Pin Labels:       MODEL, CS, CD, MISO, MOSI, RST, SCK, LED
+LCDWIKI_SPI mylcd(ST7796S, 10,  9,   12,   11,   8,  13,  -1);
 
-LCDWIKI_SPI mylcd(MODEL,CS,CD,MISO,MOSI,RST,SCK,LED);
-
-#define ROTATION_0   0
-#define ROTATION_90  1
-#define ROTATION_180 2
-#define ROTATION_270 3
-
-uint8_t displayRotation = ROTATION_180;
-
+//GameOutput class for real screen
 class GameOutput {
 private:
-  void mapCell(int gx, int gy, int playX, int playY, int cellSize, int &outX, int &outY) {
+  static constexpr uint8_t displayRotation = ROTATION_180;
+  int16_t displayW, displayH, effW, effH;
+  int16_t cellSize;
+  int16_t playW, playH, playX, playY;
+
+  GameGrid prevGrid;
+  bool prevValid = false;
+
+  void mapCell(int16_t gx, int16_t gy, int16_t playX, int16_t playY, int16_t cellSize, int16_t &outX, int16_t &outY) {
     switch(displayRotation) {
       case ROTATION_0:
         outX = playX + gx * cellSize;
@@ -54,40 +57,36 @@ private:
   }
 
   void drawPlayfieldBackground() {
-    int displayW = mylcd.Get_Display_Width();
-    int displayH = mylcd.Get_Display_Height();
-
-    int effW, effH;
-    if (displayRotation == ROTATION_0 || displayRotation == ROTATION_180) {
-      effW = gameGrid.width;
-      effH = gameGrid.height;
-    } else {
-      effW = gameGrid.height;
-      effH = gameGrid.width;
-    }
-
-    int cellSize = min(displayW / effW, displayH / effH);
-    int playW = cellSize * effW;
-    int playH = cellSize * effH;
-
-    int playX = (displayW - playW) / 2;
-    int playY = (displayH - playH) / 2;
-
     mylcd.Set_Draw_color(BLUE);
     mylcd.Fill_Rectangle(playX, playY, playX + playW - 1, playY + playH - 1);
   }
 
 public:
-  bool prevGrid[gameGrid.height][gameGrid.width];
-  bool prevValid = false;
-
   GameOutput() {
     //nothing atm
   }
 
   void init() {
-    Serial.println("Initiated");
+    Serial.println("Initializing GameOutput");
+    Serial.println(sizeof(mylcd));
     mylcd.Init_LCD();
+    //Moved math here to init since it doesn't change
+    displayW = mylcd.Get_Display_Width();
+    displayH = mylcd.Get_Display_Height();
+
+    if (displayRotation == ROTATION_0 || displayRotation == ROTATION_180)
+      effW = gameGrid.width, effH = gameGrid.height;
+    else
+      effW = gameGrid.height, effH = gameGrid.width;
+
+    int16_t cellSize = min(displayW / effW, displayH / effH);
+
+    int16_t playW = cellSize * effW;
+    int16_t playH = cellSize * effH;
+
+    int16_t playX = (displayW - playW) / 2;
+    int16_t playY = (displayH - playH) / 2;
+
     delay(200);
     mylcd.Fill_Screen(BLACK);
     drawPlayfieldBackground();
@@ -95,40 +94,19 @@ public:
   }
 
   void updateScreen() {
-    int displayW = mylcd.Get_Display_Width();
-    int displayH = mylcd.Get_Display_Height();
-
-    int effW, effH;
-    if (displayRotation == ROTATION_0 || displayRotation == ROTATION_180) {
-      effW = gameGrid.width;
-      effH = gameGrid.height;
-    } else {
-      effW = gameGrid.height;
-      effH = gameGrid.width;
-    }
-
-    int cellSize = min(displayW / effW, displayH / effH);
-
-    int playW = cellSize * effW;
-    int playH = cellSize * effH;
-
-    int playX = (displayW - playW) / 2;
-    int playY = (displayH - playH) / 2;
-
     for (uint8_t y = 0; y < gameGrid.height; y++) {
       for (uint8_t x = 0; x < gameGrid.width; x++) {
         bool filled = gameGrid.get(y, x);
 
-        if (!prevValid || prevGrid[y][x] != filled) {
-          int sx;
-          int sy;
+        if (!prevValid || prevGrid.get(y, x) != filled) {
+          int16_t sx, sy;
 
           mapCell(x, y, playX, playY, cellSize, sx, sy);
 
           mylcd.Set_Draw_color(filled ? WHITE : BLUE);
           mylcd.Fill_Rectangle(sx, sy, sx + cellSize - 1, sy + cellSize - 1);
 
-          prevGrid[y][x] = filled;
+          prevGrid.set(y, x, filled);
         }
       }
     }
@@ -145,6 +123,9 @@ public:
   }
 };
 
+
+
+//GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
 class GameOutputSerial {
 private:
   //Buzzer output pin

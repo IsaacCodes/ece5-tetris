@@ -1,5 +1,5 @@
 //Enum for piece types
-enum PieceType {
+enum PieceType : uint8_t {
   L,
   J,
   T,
@@ -13,7 +13,7 @@ enum PieceType {
 //Defines the piece designs
 constexpr uint8_t pieceDesignWidth = 3;
 constexpr uint8_t pieceDesignHeight = 4;
-constexpr uint8_t pieceDesign[NUM_PIECES][pieceDesignHeight][pieceDesignWidth] = {
+constexpr bool pieceDesign[NUM_PIECES][pieceDesignHeight][pieceDesignWidth] = {
   //L
   {
     { 1, 0, 0 },
@@ -58,10 +58,10 @@ constexpr uint8_t pieceDesign[NUM_PIECES][pieceDesignHeight][pieceDesignWidth] =
   },
   //I
   {
-    { 1, 1, 0 },
-    { 0, 1, 1 },
-    { 0, 0, 0 },
-    { 0, 0, 0 }
+    { 1, 0, 0 },
+    { 1, 0, 0 },
+    { 1, 0, 0 },
+    { 1, 0, 0 }
   },
 };
 

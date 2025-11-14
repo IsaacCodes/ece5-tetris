@@ -68,7 +68,6 @@ public:
 
   void init() {
     Serial.println("Initializing GameOutput");
-    Serial.println(sizeof(mylcd));
     mylcd.Init_LCD();
     //Moved math here to init since it doesn't change
     displayW = mylcd.Get_Display_Width();
@@ -79,13 +78,13 @@ public:
     else
       effW = gameGrid.height, effH = gameGrid.width;
 
-    int16_t cellSize = min(displayW / effW, displayH / effH);
+    cellSize = min(displayW / effW, displayH / effH);
 
-    int16_t playW = cellSize * effW;
-    int16_t playH = cellSize * effH;
+    playW = cellSize * effW;
+    playH = cellSize * effH;
 
-    int16_t playX = (displayW - playW) / 2;
-    int16_t playY = (displayH - playH) / 2;
+    playX = (displayW - playW) / 2;
+    playY = (displayH - playH) / 2;
 
     delay(200);
     mylcd.Fill_Screen(BLACK);

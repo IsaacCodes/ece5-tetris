@@ -26,16 +26,16 @@ public:
       return true;
     }
 
-    //TODO: Check if down button works
-    if (digitalRead(downPin) == HIGH) {
-      activePiece.fall();
-      Serial.println("down");
-      return true;
-    }
-    //TODO: Check if rotate button works
     if (digitalRead(rotatePin) == HIGH) {
       activePiece.rotate();
       Serial.println("rotate");
+      return true;
+    }
+
+    //TODO: Change this to be a proper implementation?
+    if (digitalRead(downPin) == HIGH) {
+      activePiece.fall();
+      Serial.println("down");
       return true;
     }
 

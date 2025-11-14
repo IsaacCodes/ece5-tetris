@@ -42,30 +42,41 @@ public:
 
   //Clears the line and moves down pieces. Returns true if clear occured
   bool lineClear() {
-    int8_t line;
-    for (line = height-1; line >= height-4; line--) {
+    bool cleared = false;
+
+    //Loops thru bottom up
+    for (int8_t line = height - 1; line >= 0; line--) {
+      //Checks whether line is full
+      bool full = true;
       for (int8_t j = 0; j < width; j++) {
         if (!get(line, j)) {
-          goto breakLoops;
-        } 
+          full = false;
+          break;
+        }
+      }
+
+      if (full) {
+        cleared = true;
+        //Shift all rows above down
+        for (int8_t i = line; i > 0; i--) {
+          for (int8_t j = 0; j < width; j++) {
+            set(i, j, get(i - 1, j));
+          }
+        }
+        //Clear top row
+        for (int8_t j = 0; j < width; j++) {
+          set(0, j, 0);
+        }
+        //Stay on the same line because it now has new data
+        line++;
       }
     }
 
-    breakLoops:
-    int8_t clearLen = height-1 - line;
-    if (clearLen == 0) return false;
-
-    //Shift each bit down to the new row
-    for (int8_t i = line; i >= 0; i--) {
-      for (int8_t j = 0; j < width; j++) {
-        set(i, j, get(i+clearLen, j));
-      }
-    }
-
-    return true;
+    return cleared;
   }
 };
 
 //Create an instance of the class. Doing that here atm to be used globally
 //TODO: Change other classes to use a pointer to gameGrid?
+//TODO: Points
 GameGrid gameGrid;

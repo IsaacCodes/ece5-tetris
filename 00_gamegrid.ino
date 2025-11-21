@@ -2,7 +2,7 @@
 class GameGrid {
 public:
   static constexpr uint8_t height = 20, width = 10;
-  uint32_t score = 0;
+  int32_t score = 0;
 private:
   uint8_t bitGrid[(height * width + 7) / 8] = {0};
 

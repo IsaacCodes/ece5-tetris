@@ -4,8 +4,9 @@ GameInput gameInput;
 GameOutput gameOutput;
 
 //Used to manage time in the game loop
-constexpr uint16_t fallTime = 500, inputTime = 150, frameRate = 20;
-uint32_t lastFall, lastInput, lastFrame;
+constexpr uint16_t fallTime = 500, inputTime = 150, buzzTime = 500, frameRate = 20;
+uint32_t lastFall, lastInput, lastBuzz, lastFrame;
+
 //Quit game loop early when true
 bool gameOver = false;
 
@@ -14,12 +15,14 @@ void setup() {
   //Init Serial
   Serial.begin(115200);
   Serial.println("\n--------------------\n");
+  
   //Init random
   randomSeed(analogRead(A0));
   gameOutput.init();
   
   lastFall = millis();
   lastInput = millis();
+  lastBuzz = millis();
   lastFrame = millis();
 }
 
@@ -49,6 +52,11 @@ void loop() {
     lastInput = now;
   }
 
+  //Buzzer handling
+  if (now - lastBuzz >= buzzTime) {
+    gameOutput.endBuzz();
+  }
+
   //Check if piece has hit the bottom grid
   if (activePiece.settled) {
     //Create a new piece, game over if no space
@@ -58,7 +66,8 @@ void loop() {
     }
     //Clear the line, call buzz
     if(gameGrid.lineClear()) {
-      gameOutput.buzz();
+      gameOutput.startBuzz();
+      lastBuzz = millis();
     }
   }
 }

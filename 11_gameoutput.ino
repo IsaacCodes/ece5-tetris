@@ -14,13 +14,6 @@ enum Color : uint16_t {
   WHITE   = 0xFFFF
 };
 
-enum Rotation : uint8_t {
-  ROTATION_0,
-  ROTATION_90,
-  ROTATION_180,
-  ROTATION_270
-};
-
 //Pin Labels:       MODEL, CS, CD, MISO, MOSI, RST, SCK, LED
 LCDWIKI_SPI mylcd(ST7796S, 10,  9,   12,   11,   8,  13,  -1);
 
@@ -28,82 +21,67 @@ LCDWIKI_SPI mylcd(ST7796S, 10,  9,   12,   11,   8,  13,  -1);
 class GameOutput {
 private:
   //Buzzer output pin
-  static constexpr int8_t buzzerPin = -1;
+  static constexpr int8_t buzzerPin = 2;
+  uint32_t lastBuzz;
 
   //Info about screen
-  static constexpr uint8_t displayRotation = ROTATION_180;
+  uint16_t cellSize, playOffsetX, playOffsetY;
+  uint16_t padding = 22;
 
-  int16_t displayWidth, displayHeight, effectiveWidth, effectiveHeight;
-  int16_t cellSize;
-  int16_t playWidth, playHeight, playX, playY;
+  bool screenInitialized = false;
 
   //Info about previous grid
   GameGrid prevGrid;
-  bool prevValid = false;
 
-  //Determines how to write based on rotation
-  void mapCell(int16_t x, int16_t y, int16_t playX, int16_t playY, int16_t cellSize, int16_t &screenX, int16_t &screenY) {
-    switch(displayRotation) {
-      case ROTATION_0:
-        screenX = playX + x * cellSize;
-        screenY = playY + y * cellSize;
-        break;
-      case ROTATION_90:
-        screenX = playX + y * cellSize;
-        screenY = playY + (gameGrid.width - 1 - x) * cellSize;
-        break;
-      case ROTATION_180:
-        screenX = playX + (gameGrid.width - 1 - x) * cellSize;
-        screenY = playY + (gameGrid.height - 1 - y) * cellSize;
-        break;
-      case ROTATION_270:
-        screenX = playX + (gameGrid.height - 1 - y) * cellSize;
-        screenY = playY + x * cellSize;
-        break;
-    }
-  }
-
+  //Info about previous score
+  int32_t prevScore = -1;
 
 public:
-  bool screenInitialized = false;
-
   //Initializes 
   void init() {
     Serial.println("Initializing GameOutput");
+
+    //Init display
     mylcd.Init_LCD();
+    mylcd.Set_Rotation(90);
 
-    //Moved math here to init since it doesn't change
-    displayWidth = mylcd.Get_Display_Width();
-    displayHeight = mylcd.Get_Display_Height();
+    //Setup display variables 
+    uint16_t displayWidth = mylcd.Get_Display_Width(), displayHeight = mylcd.Get_Display_Height();
+    uint16_t paddedDisplayWidth = displayWidth - 2 * padding, paddedDisplayHeight = displayHeight - padding;
 
-    if (displayRotation == ROTATION_0 || displayRotation == ROTATION_180)
-      effectiveWidth = gameGrid.width, effectiveHeight = gameGrid.height;
-    else
-      effectiveWidth = gameGrid.height, effectiveHeight = gameGrid.width;
+    uint16_t gridWidth = gameGrid.width, gridHeight = gameGrid.height;
 
-    cellSize = min(displayWidth / effectiveWidth, displayHeight / effectiveHeight);
+    cellSize = min(paddedDisplayWidth / gridWidth, paddedDisplayHeight / gridHeight);
 
-    playWidth = cellSize * effectiveWidth;
-    playHeight = cellSize * effectiveHeight;
+    uint16_t playWidth = cellSize * gridWidth;
+    uint16_t playHeight = cellSize * gridHeight;
 
-    playX = (displayWidth - playWidth) / 2;
-    playY = (displayHeight - playHeight) / 2;
+    playOffsetX = padding + (paddedDisplayWidth - playWidth) / 2;
+    playOffsetY = displayHeight - playHeight;
 
-    delay(200);
-    prevValid = false;
+    //Setup text stuff    
+    mylcd.Set_Draw_color(BLACK);
+    mylcd.Fill_Rectangle(playOffsetX, 0, playOffsetX + gameGrid.width * cellSize - 1, padding * 2);
+
+    mylcd.Set_Text_colour(WHITE);
+    mylcd.Set_Text_Back_colour(BLACK);
+    mylcd.Set_Text_Size(3);
+    mylcd.Print_String("Score: ", playOffsetX, 0);
   }
 
   void updateScreen() {
     for (uint8_t y = 0; y < gameGrid.height; y++) {
       for (uint8_t x = 0; x < gameGrid.width; x++) {
         bool filled = gameGrid.get(y, x);
+        
+        //On first run draw all grid squares, if not only draw changed squares
+        if (!screenInitialized || prevGrid.get(y, x) != filled) {
+          uint16_t screenX, screenY;
 
-        if (!prevValid || prevGrid.get(y, x) != filled) {
-          int16_t screenX, screenY;
+          screenX = playOffsetX + x * cellSize;
+          screenY = playOffsetY + y * cellSize;
 
-          mapCell(x, y, playX, playY, cellSize, screenX, screenY);
-
-          mylcd.Set_Draw_color(filled ? WHITE : BLUE);
+          mylcd.Set_Draw_color(filled ? WHITE : BLACK);
           mylcd.Fill_Rectangle(screenX, screenY, screenX + cellSize - 1, screenY + cellSize - 1);
 
           prevGrid.set(y, x, filled);
@@ -111,8 +89,16 @@ public:
       }
     }
 
-    prevValid = true;
-    screenInitialized = true;
+    //Only update score if score changes
+    if(prevScore != gameGrid.score) {
+      mylcd.Print_String(String(gameGrid.score), playOffsetX + 125, 0);
+      prevScore = gameGrid.score;
+    }
+
+    //If updateScreen has finished first run
+    if(!screenInitialized) {
+      screenInitialized = true;
+    }
   }
 
   //Screen to play when game is over
@@ -121,10 +107,11 @@ public:
   }
 
   //Make a buzz noise
-  void buzz() {
-    //TODO: Blocking, fix that
+  void startBuzz() {
     tone(buzzerPin, 500);
-    delay(500);
+  }
+
+  void endBuzz() {
     noTone(buzzerPin);
   }
 };
@@ -174,9 +161,11 @@ public:
   }
 
   //Make a buzz noise
-  void buzz() {
+  void startBuzz() {
     tone(buzzerPin, 500);
-    delay(500);
+  }
+
+  void endBuzz() {
     noTone(buzzerPin);
   }
 };

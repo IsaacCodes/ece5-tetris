@@ -243,7 +243,7 @@ public:
     rotation = static_cast<PieceRotation>(random(NUM_ROTATIONS));
 
     Serial.println("New Piece?");
-    return !willCollide();
+    return !willCollide(0, 0);
   }
 
   //Empties the section of the gameGrid a piece occupies
@@ -269,12 +269,13 @@ public:
   }
 
   //Returns whether will collide with new location
-  bool willCollide() {
+  bool willCollide(int8_t dy, int8_t dx) {
     //Loops thru each position of the block
     for (int8_t i = 0; i < pieceDesignHeight; i++) {
       for (int8_t j = 0; j < pieceDesignWidth; j++) {
         //If position is out of range or occupied, return true
-        if (pgm_read_byte(&pieceDesign[type][rotation][i][j]) && (y >= gameGrid.height || x < 0 || x >= gameGrid.width || gameGrid.get(y, x))) return true;
+        int8_t ny = y + i + dy, nx = x + j + dx;
+        if (pgm_read_byte(&pieceDesign[type][rotation][i][j]) && (ny >= gameGrid.height || nx < 0 || nx >= gameGrid.width || gameGrid.get(ny, nx))) return true;
       }
     }
     //Otherwise return false
@@ -286,8 +287,7 @@ public:
     //Erase the current position
     erase();
     //If spot is open, go down
-    y++;
-    if (willCollide()) y--;
+    if (!willCollide(1, 0)) y++;
     //Otherwise set to settled
     else settled = true;
     //Then reprint
@@ -299,8 +299,7 @@ public:
     //Erase the current position
     erase();
     //If spot is open, go left
-    x--;
-    if (willCollide()) x++;
+    if (!willCollide(0, -1)) x--;
     //Then reprint
     print();
     Serial.println("left");
@@ -310,30 +309,29 @@ public:
     //Erase the current position
     erase();
     //If spot is open, go left
-    x++;
-    if (willCollide()) x--;
+    if (!willCollide(0, 1)) x++;
     //Then reprint
     print();
     Serial.println("right");
   }
 
+  //TODO: Maybe change? Just basically a fall wrapper atm
   void moveDown() {
-    //Wraps fall but adds points
-    fall();
-    gameGrid.score++;
     Serial.println("down");
+    gameGrid.score++;
+    fall();
   }
 
   void rotate() {
+    Serial.println("rotate");
     //Erase the current position
     erase();
     //Try rotation
     rotation = static_cast<PieceRotation>((rotation + 1) % NUM_ROTATIONS);
     //Rotate back if spot is full
-    if (willCollide())
+    if (willCollide(0, 0))
       rotation = static_cast<PieceRotation>((rotation + NUM_ROTATIONS - 1) % NUM_ROTATIONS);
     //Then reprint
     print();
-    Serial.println("rotate");
   }
 };

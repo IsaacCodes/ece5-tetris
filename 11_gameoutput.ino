@@ -91,7 +91,7 @@ public:
     playY = (displayHeight - playHeight) / 2;
 
     delay(200);
-    mylcd.Fill_Screen(BLACK);
+    // mylcd.Fill_Screen(BLACK);
     // drawPlayfieldBackground();
     prevValid = false;
   }

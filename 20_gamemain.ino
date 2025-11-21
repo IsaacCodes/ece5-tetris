@@ -10,7 +10,7 @@ constexpr uint16_t fallTime = 500;
 constexpr uint16_t inputTime = 150;
 constexpr uint16_t frameRate = 20;
 
-uint16_t lastFall, lastInput, lastFrame;
+uint32_t lastFall, lastInput, lastFrame; // FIX: made these 32 bit to match the millis() value being 32 bit; no more speeding up !!!
 bool gameOver = false;
 
 //Runs once on startup
@@ -38,8 +38,8 @@ void loop() {
   uint32_t now = millis();
 
   if (now - lastFrame >= (1000 / frameRate)) {
-    lastFrame = now;
     gameOutput.updateScreen();
+    lastFrame = now;
   }
 
   if (now - lastFall >= fallTime) {

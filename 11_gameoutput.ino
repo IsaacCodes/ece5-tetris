@@ -27,15 +27,21 @@ LCDWIKI_SPI mylcd(ST7796S, 10,  9,   12,   11,   8,  13,  -1);
 //GameOutput class for real screen
 class GameOutput {
 private:
+  //Buzzer output pin
+  static constexpr int8_t buzzerPin = -1;
+
+  //Info about screen
   static constexpr uint8_t displayRotation = ROTATION_180;
-  
+
   int16_t displayWidth, displayHeight, effectiveWidth, effectiveHeight;
   int16_t cellSize;
   int16_t playWidth, playHeight, playX, playY;
 
+  //Info about previous grid
   GameGrid prevGrid;
   bool prevValid = false;
 
+  //Determines how to write based on rotation
   void mapCell(int16_t x, int16_t y, int16_t playX, int16_t playY, int16_t cellSize, int16_t &screenX, int16_t &screenY) {
     switch(displayRotation) {
       case ROTATION_0:
@@ -57,18 +63,11 @@ private:
     }
   }
 
-  void drawPlayfieldBackground() {
-    mylcd.Set_Draw_color(BLUE);
-    mylcd.Fill_Rectangle(playX, playY, playX + playWidth - 1, playY + playHeight - 1);
-  }
 
 public:
   bool screenInitialized = false;
 
-  GameOutput() {
-    //nothing atm
-  }
-
+  //Initializes 
   void init() {
     Serial.println("Initializing GameOutput");
     mylcd.Init_LCD();
@@ -91,8 +90,6 @@ public:
     playY = (displayHeight - playHeight) / 2;
 
     delay(200);
-    // mylcd.Fill_Screen(BLACK);
-    // drawPlayfieldBackground();
     prevValid = false;
   }
 
@@ -118,18 +115,23 @@ public:
     screenInitialized = true;
   }
 
+  //Screen to play when game is over
   void gameOver() {
-    
+    //TODO: Write this
   }
 
+  //Make a buzz noise
   void buzz() {
-    
+    //TODO: Blocking, fix that
+    tone(buzzerPin, 500);
+    delay(500);
+    noTone(buzzerPin);
   }
 };
 
 
 
-//GameOutput class, mostly temporary atm (will need to be updated with real screen functions)
+//GameOutputSerial class, for early on simulating game in Serial (may not work with most recent code)
 class GameOutputSerial {
 private:
   //Buzzer output pin
@@ -174,7 +176,7 @@ public:
   //Make a buzz noise
   void buzz() {
     tone(buzzerPin, 500);
-    delay(500);  //TODO: is blocking atm, may need to change
+    delay(500);
     noTone(buzzerPin);
   }
 };

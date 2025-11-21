@@ -89,6 +89,5 @@ public:
   }
 };
 
-//Create an instance of the class. Doing that here atm to be used globally
-//TODO: Change other classes to use a pointer to gameGrid?
+//Create an instance of gameGrid, placed here to be used globally
 GameGrid gameGrid;

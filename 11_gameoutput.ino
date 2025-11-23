@@ -1,4 +1,4 @@
-//Libraries must be installed to your Arduino environement from:
+//Libraries must be installed to your Arduino environment from:
 //https://www.lcdwiki.com/4.0inch_SPI_Module_ST7796
 #include <LCDWIKI_SPI.h>
 #include <LCDWIKI_GUI.h>
@@ -103,10 +103,10 @@ public:
 
   //Screen to play when game is over
   void gameOver() {
-    //TODO: Write this
+    //Not implemented
   }
 
-  //Make a buzz noise
+  //Handle buzzing noises
   void startBuzz() {
     tone(buzzerPin, 500);
   }
@@ -118,7 +118,7 @@ public:
 
 
 
-//GameOutputSerial class, for early on simulating game in Serial (may not work with most recent code)
+//GameOutputSerial class, for early on simulating game in Serial (may or may not work with final code)
 class GameOutputSerial {
 private:
   //Buzzer output pin

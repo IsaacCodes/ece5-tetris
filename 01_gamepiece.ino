@@ -315,15 +315,13 @@ public:
     Serial.println("right");
   }
 
-  //TODO: Maybe change? Just basically a fall wrapper atm
   void moveDown() {
-    Serial.println("down");
-    gameGrid.score++;
     fall();
+    gameGrid.score++;
+    Serial.println("down");
   }
 
   void rotate() {
-    Serial.println("rotate");
     //Erase the current position
     erase();
     //Try rotation
@@ -333,5 +331,6 @@ public:
       rotation = static_cast<PieceRotation>((rotation + NUM_ROTATIONS - 1) % NUM_ROTATIONS);
     //Then reprint
     print();
+    Serial.println("rotate");
   }
 };

@@ -11,7 +11,7 @@ enum Color : uint16_t {
   CYAN    = 0x07FF,
   MAGENTA = 0xF81F,
   YELLOW  = 0xFFE0,
-  WHITE   = 0xFFFF
+  WHITE   = 0xFFFF,
 };
 
 //Pin Labels:       MODEL, CS, CD, MISO, MOSI, RST, SCK, LED
@@ -57,6 +57,10 @@ public:
 
     playOffsetX = padding + (paddedDisplayWidth - playWidth) / 2;
     playOffsetY = displayHeight - playHeight;
+
+    //Setup base game background to get rid of weird static stuff
+    mylcd.Fill_Rect(0, 0, playOffsetX, displayHeight, MAGENTA);
+    mylcd.Fill_Rect(playOffsetX + playWidth, 0, playOffsetX, displayHeight, MAGENTA);
 
     //Setup text stuff    
     mylcd.Set_Draw_color(BLACK);

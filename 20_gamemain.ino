@@ -3,9 +3,10 @@ Piece activePiece;
 GameInput gameInput;
 GameOutput gameOutput;
 
-//Used to manage time in the game loop
+//Used to manage timed events in the game loop
 constexpr uint16_t fallTime = 500, inputTime = 150, buzzTime = 500, frameRate = 20;
 uint32_t lastFall, lastInput, lastBuzz, lastFrame;
+bool isBuzzing = false;
 
 //Quit game loop early when true
 bool gameOver = false;
@@ -28,33 +29,10 @@ void setup() {
 
 //Main game loop
 void loop() {
+  //Stop main loop if gameOver
   if(gameOver) {
     gameOutput.gameOver();
     return;
-  }
-
-  uint32_t now = millis();
-
-  //Update screen
-  if (now - lastFrame >= (1000 / frameRate)) {
-    gameOutput.updateScreen();
-    lastFrame = now;
-  }
-
-  //Make active game piece fall
-  if (now - lastFall >= fallTime) {
-    activePiece.fall();
-    lastFall = now;
-  }
-
-  //Get user input
-  if (now - lastInput >= inputTime && gameInput.readInput(activePiece)) {
-    lastInput = now;
-  }
-
-  //Buzzer handling
-  if (now - lastBuzz >= buzzTime) {
-    gameOutput.endBuzz();
   }
 
   //Check if piece has hit the bottom grid
@@ -64,10 +42,37 @@ void loop() {
       gameOver = true;
       return;
     }
-    //Clear the line, call buzz
+    //Check for line clear, call buzz on succeess
     if(gameGrid.lineClear()) {
       gameOutput.startBuzz();
       lastBuzz = millis();
+      isBuzzing = true;
     }
+  }
+
+  //Current time
+  uint32_t now = millis();
+
+  //Stops buzzer when done
+  if (isBuzzing && now - lastBuzz >= buzzTime) {    
+    gameOutput.endBuzz();
+    isBuzzing = false;
+  }
+
+  //Get user input
+  if (now - lastInput >= inputTime && gameInput.readInput(activePiece)) {
+    lastInput = now;
+  }
+
+  //Make active game piece fall
+  if (now - lastFall >= fallTime) {
+    activePiece.fall();
+    lastFall = now;
+  }
+
+  //Update screen
+  if (now - lastFrame >= (1000 / frameRate)) {
+    gameOutput.updateScreen();
+    lastFrame = now;
   }
 }

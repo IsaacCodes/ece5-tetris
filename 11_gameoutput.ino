@@ -22,7 +22,6 @@ class GameOutput {
 private:
   //Buzzer output pin
   static constexpr int8_t buzzerPin = 2;
-  uint32_t lastBuzz;
 
   //Info about screen
   uint16_t cellSize, playOffsetX, playOffsetY;
@@ -107,60 +106,6 @@ public:
   }
 
   //Handle buzzing noises
-  void startBuzz() {
-    tone(buzzerPin, 500);
-  }
-
-  void endBuzz() {
-    noTone(buzzerPin);
-  }
-};
-
-
-
-//GameOutputSerial class, for early on simulating game in Serial (may or may not work with final code)
-class GameOutputSerial {
-private:
-  //Buzzer output pin
-  static constexpr int8_t buzzerPin = -1;
-  //Temporary screen management code (mmmm thats eating a lot of ram)
-  char buffer[gameGrid.height * (gameGrid.width + 1) + 1];  //20 lines * (10 blocks + 1 '\n') + '\0'
-
-public:
-  //GameOutputSerial constructor
-  GameOutputSerial() {
-    //Init buzzer
-    pinMode(buzzerPin, OUTPUT);
-  }
-
-  //Function to update the screen (using buffer atm)
-  void updateScreen() {
-    //Loop through game screen, keeping track of index
-    uint16_t i = 0;
-    for (uint8_t y = 0; y < gameGrid.height; y++) {
-      for (uint8_t x = 0; x < gameGrid.width; x++) {
-        if (gameGrid.get(y, x)) {
-          buffer[i] = '#';
-        } else {
-          buffer[i] = '.';
-        }
-        i++;
-      }
-      buffer[i] = '\n';
-      i++;
-    }
-    buffer[i] = '\0';
-
-    Serial.println(buffer);
-  }
-
-  //Screen to play when game is over
-  void gameOver() {
-    Serial.println("Game Over D:");
-    delay(5000);
-  }
-
-  //Make a buzz noise
   void startBuzz() {
     tone(buzzerPin, 500);
   }
